@@ -1,6 +1,10 @@
 console.log ("hello everyone");
 const form = document.querySelector('form'); //anytime you see document, that is for client side javascript
+const mewsElement = document.querySelector('.mews')
 const API_URL = 'http://localhost:5000/mews';
+
+
+listAllMews();
 
 form.addEventListener('submit', (event) => {
     event.preventDefault(); // this tells the browser that the form should not be submmited but handled with JS
@@ -14,11 +18,51 @@ form.addEventListener('submit', (event) => {
     };
     console.log('form was submitted');
 
-    fetch(API_URL, {
+    fetch(API_URL, { // fetch requests data from the server. it is built into the browser
         method: 'POST',
         body: JSON.stringify(mew), // JSON.stringify takes the mew object (which is a JS object) and turns it into somthing that the server can parse and understand
         headers: {
             'content-type': 'application/json'
         }
-    })
+    }) .then(response => response.json())
+        .then(createdMew => {
+           form.reset();
+           form.style.display = '';
+           setTimeout(() => {
+
+           }, 30000);
+           listAllMews();
+
+
+        })
 })
+
+
+function listAllMews() {
+    mewsElement.innerHTML = '';
+    fetch(API_URL)
+        .then(response => response.json())
+        .then(mews => {
+            mews.reverse();
+            mews.forEach(mew => {
+                const div = document.createElement('div')
+
+                const header = document.createElement('h3')
+                header.textContent = mew.name;
+
+                const contents = document.createElement('p')
+                contents.textContent = mew.content;
+
+                const date = document.createElement('small')
+                date.textContent = new Date(mew.created);
+                               
+                
+                div.appendChild(header);
+                div.appendChild(contents)
+                div.appendChild(date);
+
+                mewsElement.appendChild(div);
+
+            })
+        })
+}
